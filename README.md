@@ -1,40 +1,123 @@
-Spotify Data Pipeline — Project Plan
-Stack: Spotify API · Python · Snowflake · dbt Cloud · GitHub Actions · Terraform
-Goal: End-to-end cloud data pipeline, fully documented on GitHub with architecture diagram and screenshots — ready to put on a resume.
+# Spotify Data Warehouse
 
+End-to-end Spotify data pipeline built with Python, Snowflake, Terraform, and dbt.
 
-python -m venv venv  
-install requirements.txt
-Activate virtual environment: <venv>\Scripts\Activate.ps1
+The project ingests Spotify API data into a Snowflake Bronze layer, then prepares it for downstream modeling in dbt. It is designed to be a portfolio-ready analytics project with clear infrastructure, repeatable ingestion, and a simple path to business-ready models.
 
+## Tech Stack
+
+- Spotify Web API
+- Python
+- Snowflake
+- Terraform
+- dbt
+- GitHub Actions
+
+## What It Does
+
+- Pulls top tracks and playlist data from Spotify
+- Loads raw records into Snowflake Bronze tables
+- Manages Snowflake resources with Terraform
+- Prepares the project for dbt transformations in Silver and Gold layers
+
+## Repository Layout
+
+```text
 spotify-pipeline/
-├── terraform/
-│   ├── main.tf              # Snowflake provider config
-│   ├── variables.tf         # Account, region, credentials
-│   ├── snowflake.tf         # Database, schemas, warehouse, roles
-│   └── outputs.tf           # Export connection values
 ├── ingestion/
-│   └── spotify_extract.py       # Pulls from Spotify API → Snowflake raw
+│   └── spotify_extract.py
+├── terraform/
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── snowflake.tf
+│   └── variables.tf
 ├── dbt/
-│   ├── models/
-│   │   ├── bronze/              # Raw layer (source tables)
-│   │   ├── silver/              # Cleaned, typed, deduplicated
-│   │   └── gold/                # Business-ready aggregations
-│   └── dbt_project.yml
-├── .github/
-│   └── workflows/
-│       └── pipeline.yml         # Scheduled GitHub Actions run
-├── docs/
-│   └── architecture.png         # Draw this in Excalidraw or draw.io
-└── README.md                    # Most important file for recruiters
+│   ├── dbt_project.yml
+│   └── models/
+│       ├── bronze/
+│       ├── silver/
+│       └── gold/
+└── docs/
+```
 
+## Bronze Layer
 
-What are my most repeated artists across playlists?
+The ingestion script writes into Snowflake Bronze tables:
 
-1. tracks
-2. artists
-3. playlists
-4. playlist_tracks
-5. top_tracks
+- `TRACKS`
+- `ARTISTS`
+- `PLAYLISTS`
+- `PLAYLIST_TRACKS`
+- `TOP_TRACKS`
 
-into bronze schema
+These tables store the source data before any dbt cleanup, deduplication, or aggregation.
+
+## Setup
+
+### 1. Create a virtual environment
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+### 2. Install dependencies
+
+```powershell
+pip install -r requirements.txt
+```
+
+### 3. Add environment variables
+
+Create a `.env` file with your Spotify and Snowflake credentials.
+
+```env
+SPOTIFY_CLIENT_ID=your_client_id
+SPOTIFY_CLIENT_SECRET=your_client_secret
+SPOTIFY_REDIRECT_URI=http://localhost:8888/callback
+
+SNOWFLAKE_USER=your_user
+SNOWFLAKE_PASSWORD=your_password
+SNOWFLAKE_ACCOUNT=your_account
+SNOWFLAKE_WAREHOUSE=your_warehouse
+SNOWFLAKE_DATABASE=SPOTIFY_DB
+SNOWFLAKE_SCHEMA=BRONZE
+```
+
+## Deploy Snowflake Resources
+
+Apply the Terraform configuration from the `spotify-pipeline/terraform` folder.
+
+```powershell
+terraform init
+terraform plan
+terraform apply
+```
+
+## Run the Ingestion Script
+
+```powershell
+python spotify-pipeline/ingestion/spotify_extract.py
+```
+
+## dbt Layer
+
+The dbt project is organized to support the standard warehouse flow:
+
+- Bronze: source tables from Snowflake
+- Silver: cleaned and typed models
+- Gold: business-ready reporting models
+
+## Example Questions
+
+- Which artists appear most often across my playlists?
+- What are my top tracks over different time ranges?
+- How does my listening history change over time?
+
+## Next Improvements
+
+- Add dbt models for deduplication and aggregation
+- Add GitHub Actions for scheduled ingestion and dbt runs
+- Add lineage and architecture screenshots to `docs/`
+- Expand tests and data quality checks
+
