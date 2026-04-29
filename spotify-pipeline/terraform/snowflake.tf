@@ -1,5 +1,4 @@
 # Provider/auth/security
-
 terraform {
   required_providers {
     snowflake = {
@@ -14,6 +13,10 @@ provider "snowflake" {
   account_name      = var.snowflake_account
   user              = var.snowflake_user
   password          = var.snowflake_password
+
+  preview_features_enabled = [
+    "snowflake_table_resource"
+  ]
 }
 
 resource "snowflake_account_role" "pipeline_role" {

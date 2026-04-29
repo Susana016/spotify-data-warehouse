@@ -1,33 +1,40 @@
-Useful Conda commands:
+Spotify Data Pipeline — Project Plan
+Stack: Spotify API · Python · Snowflake · dbt Cloud · GitHub Actions · Terraform
+Goal: End-to-end cloud data pipeline, fully documented on GitHub with architecture diagram and screenshots — ready to put on a resume.
 
-created spotify_dw environment and installed ansible terraform and dbtproject 
 
-# Install packages
-pip install ansible
-pip install psycopg2-binary
-pip install dbt-postgres
+python -m venv venv  
+install requirements.txt
+Activate virtual environment: <venv>\Scripts\Activate.ps1
 
-# Verify installations
-pip list | grep -E "ansible|psycopg2|dbt"
+spotify-pipeline/
+├── terraform/
+│   ├── main.tf              # Snowflake provider config
+│   ├── variables.tf         # Account, region, credentials
+│   ├── snowflake.tf         # Database, schemas, warehouse, roles
+│   └── outputs.tf           # Export connection values
+├── ingestion/
+│   └── spotify_extract.py       # Pulls from Spotify API → Snowflake raw
+├── dbt/
+│   ├── models/
+│   │   ├── bronze/              # Raw layer (source tables)
+│   │   ├── silver/              # Cleaned, typed, deduplicated
+│   │   └── gold/                # Business-ready aggregations
+│   └── dbt_project.yml
+├── .github/
+│   └── workflows/
+│       └── pipeline.yml         # Scheduled GitHub Actions run
+├── docs/
+│   └── architecture.png         # Draw this in Excalidraw or draw.io
+└── README.md                    # Most important file for recruiters
 
-# List all your environments
-conda env list
 
-# Activate environment
-conda activate spotify_dw
+What are my most repeated artists across playlists?
 
-# Deactivate environment
-conda deactivate
+1. tracks
+2. artists
+3. playlists
+4. playlist_tracks
+5. top_tracks
 
-# Delete environment (if you mess up and want to start over)
-conda env remove -n spotify_dw
-
-# Export environment (for GitHub)
-conda env export > environment.yml
-
-# Install new package
-conda activate spotify_dw
-pip install package_name
-
-# Update requirements.txt after installing new packages
-pip freeze > requirements.txt
+into bronze schema
