@@ -1,4 +1,4 @@
-# Spotify Data Warehouse
+# Spotify Data Warehouse - In progress
 
 End-to-end Spotify data pipeline built with Python, Snowflake, Terraform, and dbt.
 
