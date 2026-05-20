@@ -17,7 +17,7 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
     client_id=os.getenv("SPOTIFY_CLIENT_ID"),
     client_secret=os.getenv("SPOTIFY_CLIENT_SECRET"),
     redirect_uri=os.getenv("SPOTIFY_REDIRECT_URI"),
-    scope="user-top-read user-read-recently-played"
+    scope="user-top-read user-read-recently-played"  #OAuth scopes to follow least-privilege principles
 ))
 
 # -----------------------
@@ -34,6 +34,7 @@ conn = snowflake.connector.connect(
 
 cur = conn.cursor()
 
+# Connection check
 cur.execute("SELECT CURRENT_DATABASE(), CURRENT_SCHEMA(), CURRENT_WAREHOUSE()")
 db, schema, wh = cur.fetchone()
 print(f"Connected to: database={db}, schema={schema}, warehouse={wh}")
@@ -42,6 +43,7 @@ me = sp.current_user()
 print(f"Authenticated as: {me['display_name']} ({me['id']})")
 
 
+# Traverses nested dicts/lists safely without throwing KeyError or IndexError
 def safe_get(obj, *keys, default=None):
     """Safely traverse nested dicts and lists."""
     for key in keys:
@@ -57,7 +59,7 @@ def safe_get(obj, *keys, default=None):
             return default
     return obj if obj is not None else default
 
-
+# Wrapped entire ingestion in a try/except/finally block so the pipeline is transactionally safe
 try:
     # =====================================================
     # 1. RECENTLY PLAYED
